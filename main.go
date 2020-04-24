@@ -23,18 +23,16 @@ var buffer = make(map[int][]byte)
 var frame []byte
 var mutex = &sync.Mutex{}
 
-const IMAGE_NAME = "image.png"
-
 func main() {
 
 	host := "0.0.0.0:3000"
-	
 	// open webcam
 	if len(os.Args) < 2 {
 		fmt.Println(">> device /dev/video0 (default)")
-		webcam, err = gocv.VideoCaptureDevice(1)
+		webcam, err = gocv.VideoCaptureDevice(0)
 	} else {
 		fmt.Println(">> file/url :: " + os.Args[1])
+		// "rtsp://admin:techocean123@192.168.1.108/cam/realmonitor?channel=1&subtype=0"
 		webcam, err = gocv.VideoCaptureFile(os.Args[1])
 	}
 
@@ -74,24 +72,19 @@ func main() {
 func getframes() {
 	img := gocv.NewMat()
 	defer img.Close()
-	record := true
-	for record {
+	for {
 		if ok := webcam.Read(&img); !ok {
 			fmt.Printf("Device closed\n")
-			record = false
 			return
 		}
-		if img.Empty() {
-			continue
-		}
-		if window.WaitKey(1) == 32 {
-			gocv.IMWrite(IMAGE_NAME, img)
-		    if err != nil {
-		        log.Fatal(err)
-		    }
-		}
+		// if img.Empty() {
+		// 	continue
+		// }
+		frame_id++
 		gocv.Resize(img, &img, image.Point{}, float64(0.5), float64(0.5), 0)
 		frame, _ = gocv.IMEncode(".jpg", img)
 
 	}
 }
+
+// "rtsp://admin:techocean123@192.168.1.108/cam/realmonitor?channel=1&subtype=0"
